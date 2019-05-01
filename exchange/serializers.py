@@ -1,10 +1,17 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from exchange.models import Product, Category
+from user.serializers import UserViewSerializer
 
-class UserSerializer(serializers.ModelSerializer):
-    phone = serializers.CharField(max_length=10, required=True)
-    password = serializers.CharField(max_length=225, required=True)
+class CategoriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    category = CategoriesSerializer(read_only=True)
+    owner = UserViewSerializer(read_only=True)
 
     class Meta:
-        model = get_user_model()
-        fields = ('email', 'password', 'first_name', 'last_name', 'birthday', 'gender', 'picture', 'phone')
+        model = Product
+        fields = '__all__'

@@ -3,4 +3,9 @@ env
 db.sqlite3
 .idea
 mysql.cnf
-__pycache__/
+
+# ignore pycache
+*.pyc
+*/*/*/__pycache__/
+*/*/__pycache__/
+*/__pycache__/

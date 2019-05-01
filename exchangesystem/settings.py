@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'quickstart',
-    'exchange.apps.ExchangeConfig'
+    'exchange.apps.ExchangeConfig',
+    'user.apps.UserConfig'
 ]
 
 MIDDLEWARE = [
@@ -104,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'exchange.User'
+AUTH_USER_MODEL = 'user.User'
 
 
 # Internationalization
