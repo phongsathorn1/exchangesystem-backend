@@ -14,9 +14,12 @@ class Product(models.Model):
     detail = models.TextField(null=False)
     quantity = models.IntegerField(null=False)
     created_date = models.DateTimeField(default=timezone.now)
-    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=True, blank=False)
+    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=False, blank=False)
     want_product = models.CharField(max_length=125)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ('created_date',)
 
     def __str__(self):
         return self.name

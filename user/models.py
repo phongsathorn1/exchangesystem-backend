@@ -56,6 +56,7 @@ class User(AbstractUser):
 
     gender = models.CharField(choices=GENDER, max_length=1, null=True)
     phone = models.CharField(max_length=225, null=False)
+    firebase_uid = models.CharField(max_length=225, null=False, unique=True)
     picture = models.CharField(max_length=225, null=True)
 
     USERNAME_FIELD = 'email'

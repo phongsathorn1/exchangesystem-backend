@@ -3,11 +3,11 @@ from django.contrib.auth import get_user_model
 
 class UserSerializer(serializers.ModelSerializer):
     phone = serializers.CharField(max_length=10, required=True)
-    password = serializers.CharField(max_length=225, required=True)
+    password = serializers.CharField(max_length=225, required=True, write_only=True)
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'password', 'first_name', 'last_name', 'birthday', 'gender', 'picture', 'phone')
+        fields = ('id', 'email', 'password', 'first_name', 'last_name', 'birthday', 'gender', 'picture', 'phone', 'firebase_uid')
 
 class UserViewSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
