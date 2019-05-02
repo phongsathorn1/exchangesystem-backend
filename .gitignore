@@ -9,3 +9,5 @@ mysql.cnf
 */*/*/__pycache__/
 */*/__pycache__/
 */__pycache__/
+
+static/product_images/

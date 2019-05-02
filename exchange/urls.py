@@ -18,7 +18,8 @@ urlpatterns = [
     path('product/', product_list, name='product-list'),
     path('product/<int:pk>/', product_detail, name='product-detail'),
     path('category/', views.CategoryList.as_view(), name='category-list'),
-    path('category/<int:pk>/', views.CategoryDetail.as_view(), name='category-detail')
+    path('category/<int:pk>/', views.CategoryDetail.as_view(), name='category-detail'),
+    path('upload/product/', views.ProductImageUploadView.as_view(), name='upload-image')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

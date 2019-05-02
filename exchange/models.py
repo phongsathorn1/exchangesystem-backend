@@ -27,6 +27,7 @@ class Product(models.Model):
 class Product_picture(models.Model):
     picture_path = models.CharField(max_length=125)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.picture_path
