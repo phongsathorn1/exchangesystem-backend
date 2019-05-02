@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ('email', 'password', 'first_name', 'last_name', 'birthday', 'gender', 'picture', 'phone')
 
-class UserViewSerializer(serializers.ModelSerializer):
+class UserViewSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ('email', 'first_name', 'last_name', 'birthday', 'gender', 'picture', 'phone')
+        fields = ('url', 'email', 'first_name', 'last_name', 'birthday', 'gender', 'picture', 'phone')

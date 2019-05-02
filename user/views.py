@@ -1,12 +1,14 @@
 from rest_framework import status, mixins, generics
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from user.models import User
 from user.serializers import UserSerializer, UserViewSerializer
 
 
 @api_view(['POST'])
-def create_user(request):
+@permission_classes((~IsAuthenticated,))
+def create_user(request, format=None):
     if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
