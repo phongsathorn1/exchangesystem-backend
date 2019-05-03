@@ -1,6 +1,7 @@
 import os
 import uuid
 
+from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.reverse import reverse
@@ -8,8 +9,9 @@ from rest_framework import mixins, generics, status, viewsets, views
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from exchange.models import Product, Category
-from exchange.serializers import ProductSerializer, CategoriesSerializer
+from exchange.models import Product, Category, Product_picture
+from exchange.serializers import ProductSerializer, CategoriesSerializer, ProductPictureSerializer
+from user.models import User
 
 
 @api_view(['GET'])
@@ -25,8 +27,38 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def create(self, request):
+        product_serializer = self.serializer_class(data={
+            'name': request.data.get('name'),
+            'detail': request.data.get('detail'),
+            'quantity': request.data.get('quantity'),
+            'category_id': request.data.get('category_id'),
+            'want_product': request.data.get('want_product')
+        }, context={'request': request})
+
+        if product_serializer.is_valid():
+            product = product_serializer.save(owner=request.user)
+            for image_id in request.data.get('images_id'):
+                picture = Product_picture.objects.get(pk=image_id)
+                picture.user = request.user
+                picture.product = product
+                picture.save()
+
+            return Response(product_serializer.data, status.HTTP_200_OK)
+        return Response(product_serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    # def perform_create(self, serializer):
+    #     print(serializer.data)
+    #     serializer.save(owner=self.request.user)
+
+class ProductPictureViewSet(viewsets.ModelViewSet):
+
+    def retrieve(self, request, pk=None):
+        queryset = Product_picture.objects.all()
+        product_picture = get_object_or_404(queryset, pk=pk)
+        serializer = ProductPictureSerializer(product_picture)
+        # serializer.data.picture_path = 'media/'+serializer.data.picture_path
+        return Response(serializer.data)
 
 
 class CategoryDetail(mixins.RetrieveModelMixin,
@@ -49,17 +81,20 @@ class CategoryList(generics.ListCreateAPIView):
     permission_classes = (AllowAny,)
 
 class ProductImageUploadView(views.APIView):
-    SAVE_DIR = os.path.abspath('static/product_images')
+    # SAVE_DIR = os.path.abspath('media/product_images')
     permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
-        file_obj = request.FILES['file']
-        file_extension = '.%s' %file_obj.name.split('.')[-1]
-        self.handle_file_upload(file_obj, file_extension)
+        file = request.FILES['file']
+        file_extension = '.%s' % file.name.split('.')[-1]
+        file_name = str(uuid.uuid4()) + file_extension
+        file.name = file_name
 
-        return Response(status=204)
-
-    def handle_file_upload(self, file, file_extension):
-        with open(os.path.join(self.SAVE_DIR, '%s.%s' %(str(uuid.uuid4()), file_extension)), 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+        data = {
+            'picture_path': file
+        }
+        serializer = ProductPictureSerializer(data=data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status.HTTP_200_OK)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)

@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.utils import timezone
 from user.models import User
@@ -25,9 +27,11 @@ class Product(models.Model):
         return self.name
 
 class Product_picture(models.Model):
-    picture_path = models.CharField(max_length=125)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    picture_path = models.ImageField(upload_to='product_images')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.picture_path
