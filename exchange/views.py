@@ -52,15 +52,14 @@ class ProductViewSet(viewsets.ModelViewSet):
     def list_avaliable_by_user(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
 
-        receive_deal = Deal.objects.filter(owner_accept=None).select_related('product').filter(product__owner=user)\
+        receive_deal = Deal.objects.filter(owner_accept=True).select_related('product').filter(product__owner=user)\
             .values_list('product_id', flat=True)
 
-        offer_deal = DealOffer.objects.select_related('deal').filter(deal__owner_accept=None)\
+        offer_deal = DealOffer.objects.select_related('deal').filter(deal__offerer_accept=True)\
             .select_related('offer_product').filter(offer_product__owner=user)\
             .values_list('offer_product_id', flat=True)
 
         products = Product.objects.filter(owner=user).exclude(pk__in=receive_deal).exclude(pk__in=offer_deal)
-        print(products.query)
         product_serializer = self.serializer_class(products, context={'request': request}, many=True)
         return Response(product_serializer.data, status.HTTP_200_OK)
 
