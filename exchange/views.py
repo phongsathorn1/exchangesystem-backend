@@ -49,8 +49,23 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Response(product_serializer.data, status.HTTP_200_OK)
         return Response(product_serializer.errors, status.HTTP_400_BAD_REQUEST)
 
+    def get_offer_product(self, request, pk=None):
+        product = get_object_or_404(Product, pk=pk)
+        product_serializer = ProductSerializer(product, context={'request': request})
+        context = {
+            'product': product_serializer.data,
+            'avaliable_offer_products': self.list_avaliable_by_user(request, pk=request.user.id)
+        }
+        return Response(context, status.HTTP_200_OK)
+
     def list_avaliable_by_user(self, request, pk=None):
-        user = get_object_or_404(User, pk=pk)
+        return self.get_list_avaliable_by_user(request, pk=pk)
+
+    def get_list_avaliable_by_user(self, request, pk=None):
+        user = User.objects.get(pk=pk)
+        if not user:
+            return None
+        # user = get_object_or_404(User, pk=pk)
 
         receive_deal = Deal.objects.filter(owner_accept=True).select_related('product').filter(product__owner=user)\
             .values_list('product_id', flat=True)
@@ -61,7 +76,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         products = Product.objects.filter(owner=user).exclude(pk__in=receive_deal).exclude(pk__in=offer_deal)
         product_serializer = self.serializer_class(products, context={'request': request}, many=True)
-        return Response(product_serializer.data, status.HTTP_200_OK)
+        return product_serializer.data
 
         # receive_deal = Deal.objects.filter(product__in=products)
         # offer_dealoffer = DealOffer.objects.filter(offer_product=product)
@@ -115,25 +130,47 @@ class DealViewSet(viewsets.ModelViewSet):
         return Response(context, status.HTTP_200_OK)
 
     def create(self, request):
+        print(request)
         product = Product.objects.get(pk=request.data.get('product_id'))
         offer_products = []
         for offer_product_req in request.data.get('offer_products'):
-            offer_product = Product.objects.get(pk=offer_product_req.id, owner=request.user)
+            offer_product = Product.objects.get(pk=offer_product_req['id'], owner=request.user)
             if not offer_product:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+            offer_products.append({
+                'product': offer_product,
+                'quantity': offer_product_req['quantity']
+            })
 
-            offer_products.append(offer_products)
+        deal = Deal.objects.create(
+            product=product
+        )
 
-        deal_serializer = DealSerializer(data={
-            'product': product,
-            'deal_offer': offer_products,
-            'quantity': offer_product_req.quantity
-        })
+        deal_offers = []
+        for offer_product in offer_products:
+            DealOffer.objects.create(
+                deal=deal,
+                offer_product=offer_product['product'],
+                quantity=offer_product['quantity']
+            )
 
-        if deal_serializer.is_valid():
-            return Response(deal_serializer.data, status.HTTP_200_OK)
-        return Response(deal_serializer.errors, status.HTTP_400_BAD_REQUEST)
+        deal_serializer = DealSerializer(deal, context={'request': request})
+        return Response(deal_serializer.data, status.HTTP_200_OK)
 
+
+        #     if not deal_offer_serializer.is_valid():
+        #         return Response(deal_offer_serializer.errors, status.HTTP_400_BAD_REQUEST)
+        #     deal_offer = deal_offer_serializer.save()
+        #     deal_offers.append(deal_offer)
+        #
+        # deal_serializer = DealSerializer(data={
+        #     'product': product.id,
+        #     'deal_offer': deal_offers.id
+        # })
+        #
+        # if deal_serializer.is_valid():
+        #     return Response(deal_serializer.data, status.HTTP_200_OK)
+        # return Response(deal_serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 class ProductPictureViewSet(viewsets.ModelViewSet):
 

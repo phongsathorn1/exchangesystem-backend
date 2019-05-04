@@ -17,6 +17,10 @@ product_avaliable_by_user = views.ProductViewSet.as_view({
     'get': 'list_avaliable_by_user'
 })
 
+deal_offer_product = views.ProductViewSet.as_view({
+    'get': 'get_offer_product'
+})
+
 deal_list = views.DealViewSet.as_view({
     'get': 'list',
     'post': 'create',
@@ -31,6 +35,7 @@ urlpatterns = [
     path('product/', product_list, name='product-list'),
     path('product/<int:pk>/', product_detail, name='product-detail'),
     path('product/user/<int:pk>/', product_avaliable_by_user),
+    path('product-offer/<int:pk>/', deal_offer_product),
     path('category/', views.CategoryList.as_view(), name='category-list'),
     path('category/<int:pk>/', views.CategoryDetail.as_view(), name='category-detail'),
     path('upload/product/', views.ProductImageUploadView.as_view(), name='upload-image'),
