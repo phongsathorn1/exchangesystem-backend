@@ -17,6 +17,15 @@ product_avaliable_by_user = views.ProductViewSet.as_view({
     'get': 'list_avaliable_by_user'
 })
 
+deal_list = views.DealViewSet.as_view({
+    'get': 'list',
+    'post': 'create',
+})
+
+deal_detail = views.DealViewSet.as_view({
+    'get': 'retrieve'
+})
+
 urlpatterns = [
     path('', views.api_root),
     path('product/', product_list, name='product-list'),
@@ -25,6 +34,8 @@ urlpatterns = [
     path('category/', views.CategoryList.as_view(), name='category-list'),
     path('category/<int:pk>/', views.CategoryDetail.as_view(), name='category-detail'),
     path('upload/product/', views.ProductImageUploadView.as_view(), name='upload-image'),
+    path('deal/', deal_list, name="deal-list"),
+    path('deal/<int:pk>/', deal_detail, name="deal-detail")
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

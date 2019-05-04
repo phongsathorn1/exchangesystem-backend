@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from exchange.models import Product, Category, Product_picture, Deal
 from exchange.serializers import ProductSerializer, CategoriesSerializer, ProductPictureSerializer, \
-    ProductPictureUploadSerializer
+    ProductPictureUploadSerializer, DealSerializer
 from user.models import User
 
 
@@ -63,10 +63,40 @@ class ProductViewSet(viewsets.ModelViewSet):
         product_serializer = self.serializer_class(products_avaliable, context={'request': request}, many=True)
         return Response(product_serializer.data, status.HTTP_200_OK)
 
-
     # def perform_create(self, serializer):
     #     print(serializer.data)
     #     serializer.save(owner=self.request.user)
+
+class DealManagerViewSet(viewsets.ModelViewSet):
+
+    def retrieve(self, request):
+
+        pass
+
+class DealViewSet(viewsets.ModelViewSet):
+    serializer_class = DealSerializer
+    queryset = Deal.objects.all()
+
+    def list(self, request):
+        context = []
+        products = Product.objects.filter(owner=request.user)
+
+        for product in products:
+            data = {}
+            receive_deal = Deal.objects.filter(product=product).order_by('pk')
+            offer_deal = Deal.objects.filter(with_product=product)
+
+            product_serializer = ProductSerializer(product, context={'request': request})
+            receive_deals_serializer = DealSerializer(receive_deal, many=True, context={'request': request})
+            offer_deals_serializer = DealSerializer(offer_deal, many=True, context={'request': request})
+
+            data["product"] = product_serializer.data
+            data["receive_deals"] = receive_deals_serializer.data
+            data["offer_deals"] = offer_deals_serializer.data
+            context.append(data)
+
+        return Response(context, status.HTTP_200_OK)
+
 
 class ProductPictureViewSet(viewsets.ModelViewSet):
 

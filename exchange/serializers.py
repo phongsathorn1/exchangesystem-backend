@@ -2,7 +2,7 @@ from django.http import request
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from exchange.models import Product, Category, Product_picture
+from exchange.models import Product, Category, Product_picture, Deal
 from user.models import User
 from user.serializers import UserViewSerializer
 
@@ -35,3 +35,13 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ('id', 'url', 'name', 'detail', 'quantity', 'category',
                   'category_id', 'want_product', 'owner', 'product_picture')
 
+class DealSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+    with_product = ProductSerializer()
+
+    class Meta:
+        model = Deal
+        fields = '__all__'
+
+class DealManagerSerializer(serializers.ModelSerializer):
+    Product = ProductSerializer(read_only=True)
