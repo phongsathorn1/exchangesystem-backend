@@ -11,3 +11,4 @@ mysql.cnf
 */__pycache__/
 
 static/product_images
+media/

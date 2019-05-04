@@ -12,17 +12,17 @@ class CategoriesSerializer(serializers.ModelSerializer):
         model = Category
         fields = ('id', 'url', 'name')
 
-class ProductPictureSerializer(serializers.ModelSerializer):
+class ProductPictureUploadSerializer(serializers.ModelSerializer):
     user = UserViewSerializer(read_only=True)
-    # user_id = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all(), source='user', write_only=True)
-    # picture_path = SerializerMethodField()
 
     class Meta:
         model = Product_picture
         fields = ('id', 'picture_path', 'user')
-    #
-    # def get_picture_path(self, obj):
-    #     return absoluteuri.build_absolute_uri('/media/'+obj.picture_path)
+
+class ProductPictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product_picture
+        fields = ('picture_path',)
 
 class ProductSerializer(serializers.ModelSerializer):
     category = CategoriesSerializer(read_only=True)

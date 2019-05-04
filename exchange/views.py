@@ -1,6 +1,7 @@
 import os
 import uuid
 
+from django.db.models import Q
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -9,8 +10,9 @@ from rest_framework import mixins, generics, status, viewsets, views
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from exchange.models import Product, Category, Product_picture
-from exchange.serializers import ProductSerializer, CategoriesSerializer, ProductPictureSerializer
+from exchange.models import Product, Category, Product_picture, Deal
+from exchange.serializers import ProductSerializer, CategoriesSerializer, ProductPictureSerializer, \
+    ProductPictureUploadSerializer
 from user.models import User
 
 
@@ -47,6 +49,21 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Response(product_serializer.data, status.HTTP_200_OK)
         return Response(product_serializer.errors, status.HTTP_400_BAD_REQUEST)
 
+    def list_avaliable_by_user(self, request, pk=None):
+        user = get_object_or_404(User, pk=pk)
+        products = Product.objects.filter(owner=user)
+        products_unavaliable = Deal.objects.filter(
+            Q(product__in=products) | Q(with_product__in=products),
+            Q(owner_accept=True)
+        )
+        products_unavaliable_ids = products_unavaliable.values_list('product', flat=True)
+        products_avaliable = products.exclude(pk__in=products_unavaliable_ids)
+        print(products_avaliable[0])
+
+        product_serializer = self.serializer_class(products_avaliable, context={'request': request}, many=True)
+        return Response(product_serializer.data, status.HTTP_200_OK)
+
+
     # def perform_create(self, serializer):
     #     print(serializer.data)
     #     serializer.save(owner=self.request.user)
@@ -81,7 +98,6 @@ class CategoryList(generics.ListCreateAPIView):
     permission_classes = (AllowAny,)
 
 class ProductImageUploadView(views.APIView):
-    # SAVE_DIR = os.path.abspath('media/product_images')
     permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
@@ -93,7 +109,7 @@ class ProductImageUploadView(views.APIView):
         data = {
             'picture_path': file
         }
-        serializer = ProductPictureSerializer(data=data, context={'request': request})
+        serializer = ProductPictureUploadSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status.HTTP_200_OK)
