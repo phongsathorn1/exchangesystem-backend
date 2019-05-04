@@ -10,9 +10,9 @@ from rest_framework import mixins, generics, status, viewsets, views
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from exchange.models import Product, Category, Product_picture, Deal
+from exchange.models import Product, Category, Product_picture, Deal, DealOffer
 from exchange.serializers import ProductSerializer, CategoriesSerializer, ProductPictureSerializer, \
-    ProductPictureUploadSerializer, DealSerializer
+    ProductPictureUploadSerializer, DealSerializer, DealOfferSerializer
 from user.models import User
 
 
@@ -82,13 +82,18 @@ class DealViewSet(viewsets.ModelViewSet):
         products = Product.objects.filter(owner=request.user)
 
         for product in products:
+            print(product)
             data = {}
             receive_deal = Deal.objects.filter(product=product).order_by('pk')
-            offer_deal = Deal.objects.filter(with_product=product)
+            offer_dealoffer = DealOffer.objects.filter(offer_product=product)
+            offer_deal = Deal.objects.filter(dealoffer__in=offer_dealoffer)
+
+            print(offer_deal)
 
             product_serializer = ProductSerializer(product, context={'request': request})
             receive_deals_serializer = DealSerializer(receive_deal, many=True, context={'request': request})
             offer_deals_serializer = DealSerializer(offer_deal, many=True, context={'request': request})
+            print(offer_deals_serializer.data)
 
             data["product"] = product_serializer.data
             data["receive_deals"] = receive_deals_serializer.data
@@ -97,6 +102,9 @@ class DealViewSet(viewsets.ModelViewSet):
 
         return Response(context, status.HTTP_200_OK)
 
+    # def create(self, request, pk=None):
+    #     product = get_object_or_404(Product, pk=pk)
+    #     with_product = []
 
 class ProductPictureViewSet(viewsets.ModelViewSet):
 

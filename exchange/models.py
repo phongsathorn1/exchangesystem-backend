@@ -58,9 +58,13 @@ class Exchange(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
 class Deal(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="deal_product")
-    with_product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="deal_with_product")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     owner_accept = models.BooleanField(null=True)
     offerer_accept = models.BooleanField(null=True)
     created_date = models.DateTimeField(default=timezone.now)
     expired_datetime = models.DateTimeField(null=True)
+
+class DealOffer(models.Model):
+    deal = models.ForeignKey(Deal, on_delete=models.CASCADE)
+    offer_product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(null=False)
