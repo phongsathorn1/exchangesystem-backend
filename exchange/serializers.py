@@ -48,7 +48,7 @@ class DealSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Deal
-        fields = ('product', 'owner_accept', 'offerer_accept', 'created_date', 'expired_datetime', 'deal_offer')
+        fields = ('id', 'product', 'owner_accept', 'offerer_accept', 'created_date', 'expired_datetime', 'deal_offer')
 
 class DealManagerSerializer(serializers.ModelSerializer):
     Product = ProductSerializer(read_only=True)
