@@ -65,7 +65,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         user = User.objects.get(pk=pk)
         if not user:
             return None
-        # user = get_object_or_404(User, pk=pk)
 
         receive_deal = Deal.objects.filter(owner_accept=True).select_related('product').filter(product__owner=user)\
             .values_list('product_id', flat=True)
@@ -78,25 +77,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         product_serializer = self.serializer_class(products, context={'request': request}, many=True)
         return product_serializer.data
 
-        # receive_deal = Deal.objects.filter(product__in=products)
-        # offer_dealoffer = DealOffer.objects.filter(offer_product=product)
-        # offer_deal = Deal.objects.filter(dealoffer__in=offer_dealoffer)
-
-
-        # products_unavaliable = Deal.objects.filter(
-        #     Q(product__in=products) | Q(with_product__in=products),
-        #     Q(owner_accept=True)
-        # )
-        # products_unavaliable_ids = products_unavaliable.values_list('product', flat=True)
-        # products_avaliable = products.exclude(pk__in=products_unavaliable_ids)
-        # print(products_avaliable[0])
-
-        # product_serializer = self.serializer_class(products_avaliable, context={'request': request}, many=True)
-        # return Response(product_serializer.data, status.HTTP_200_OK)
-
-    # def perform_create(self, serializer):
-    #     print(serializer.data)
-    #     serializer.save(owner=self.request.user)
 
 class DealManagerViewSet(viewsets.ModelViewSet):
 
@@ -157,28 +137,12 @@ class DealViewSet(viewsets.ModelViewSet):
         deal_serializer = DealSerializer(deal, context={'request': request})
         return Response(deal_serializer.data, status.HTTP_200_OK)
 
-
-        #     if not deal_offer_serializer.is_valid():
-        #         return Response(deal_offer_serializer.errors, status.HTTP_400_BAD_REQUEST)
-        #     deal_offer = deal_offer_serializer.save()
-        #     deal_offers.append(deal_offer)
-        #
-        # deal_serializer = DealSerializer(data={
-        #     'product': product.id,
-        #     'deal_offer': deal_offers.id
-        # })
-        #
-        # if deal_serializer.is_valid():
-        #     return Response(deal_serializer.data, status.HTTP_200_OK)
-        # return Response(deal_serializer.errors, status.HTTP_400_BAD_REQUEST)
-
 class ProductPictureViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         queryset = Product_picture.objects.all()
         product_picture = get_object_or_404(queryset, pk=pk)
         serializer = ProductPictureSerializer(product_picture)
-        # serializer.data.picture_path = 'media/'+serializer.data.picture_path
         return Response(serializer.data)
 
 
