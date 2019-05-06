@@ -4,9 +4,9 @@ import uuid
 from django.db.models import Q
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import FileUploadParser
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, BasePermission
 from rest_framework.reverse import reverse
-from rest_framework import mixins, generics, status, viewsets, views
+from rest_framework import mixins, generics, status, viewsets, views, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
@@ -24,10 +24,18 @@ def api_root(request, format=None):
         'products': reverse('product-list', request=request, format=format)
     })
 
+class IsAuthenticatedOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        if view.action in ['list', 'retrieve']:
+            return True
+        elif request.user:
+            return True
+        return False
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def create(self, request):
         product_serializer = self.serializer_class(data={
@@ -77,7 +85,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         product_serializer = self.serializer_class(products, context={'request': request}, many=True)
         return product_serializer.data
 
-
 class DealManagerViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request):
@@ -87,6 +94,7 @@ class DealManagerViewSet(viewsets.ModelViewSet):
 class DealViewSet(viewsets.ModelViewSet):
     serializer_class = DealSerializer
     queryset = Deal.objects.all()
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request):
         context = []
@@ -110,7 +118,6 @@ class DealViewSet(viewsets.ModelViewSet):
         return Response(context, status.HTTP_200_OK)
 
     def create(self, request):
-        print(request)
         product = Product.objects.get(pk=request.data.get('product_id'))
         offer_products = []
         for offer_product_req in request.data.get('offer_products'):
@@ -133,6 +140,27 @@ class DealViewSet(viewsets.ModelViewSet):
                 offer_product=offer_product['product'],
                 quantity=offer_product['quantity']
             )
+
+        deal_serializer = DealSerializer(deal, context={'request': request})
+        return Response(deal_serializer.data, status.HTTP_200_OK)
+
+    def accept_deal(self, request, pk=None):
+        deal = get_object_or_404(Deal, pk=pk)
+        product_owner = Product.objects.filter(pk=deal.product.id, owner=request.user)
+        if product_owner.exists():
+            deal.owner_accept = True
+            deal.save()
+        else:
+            is_deal_offer = DealOffer.objects.select_related('offer_product').filter(
+                deal=pk).filter(offer_product__owner=request.user)
+
+            if is_deal_offer.exists():
+                deal = Deal.objects.get(pk=pk)
+                if deal.owner_accept:
+                    deal.offerer_accept = True
+                    deal.save()
+                else:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
 
         deal_serializer = DealSerializer(deal, context={'request': request})
         return Response(deal_serializer.data, status.HTTP_200_OK)

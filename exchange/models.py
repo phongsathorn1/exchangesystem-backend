@@ -50,12 +50,12 @@ class Feedback(models.Model):
 
     def __str__(self):
         return self.title
-
-class Exchange(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product")
-    with_product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="with_product")
-    owner_accept = models.BooleanField(null=True)
-    created_date = models.DateTimeField(default=timezone.now)
+#
+# class Exchange(models.Model):
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product")
+#     with_product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="with_product")
+#     owner_accept = models.BooleanField(null=True)
+#     created_date = models.DateTimeField(default=timezone.now)
 
 class Deal(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
