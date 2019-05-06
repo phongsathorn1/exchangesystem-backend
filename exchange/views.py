@@ -62,12 +62,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         product_serializer = ProductSerializer(product, context={'request': request})
         context = {
             'product': product_serializer.data,
-            'avaliable_offer_products': self.list_avaliable_by_user(request, pk=request.user.id)
+            'avaliable_offer_products': self.get_list_avaliable_by_user(request, pk=request.user.id)
         }
         return Response(context, status.HTTP_200_OK)
 
     def list_avaliable_by_user(self, request, pk=None):
-        return self.get_list_avaliable_by_user(request, pk=pk)
+        return Response(self.get_list_avaliable_by_user(request, pk=pk), status.HTTP_200_OK)
 
     def get_list_avaliable_by_user(self, request, pk=None):
         user = User.objects.get(pk=pk)
@@ -84,12 +84,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         products = Product.objects.filter(owner=user).exclude(pk__in=receive_deal).exclude(pk__in=offer_deal)
         product_serializer = self.serializer_class(products, context={'request': request}, many=True)
         return product_serializer.data
-
-class DealManagerViewSet(viewsets.ModelViewSet):
-
-    def retrieve(self, request):
-
-        pass
 
 class DealViewSet(viewsets.ModelViewSet):
     serializer_class = DealSerializer
@@ -161,6 +155,26 @@ class DealViewSet(viewsets.ModelViewSet):
                     deal.save()
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        deal_serializer = DealSerializer(deal, context={'request': request})
+        return Response(deal_serializer.data, status.HTTP_200_OK)
+
+    def give_score(self, request, pk=None):
+        deal = get_object_or_404(Deal, pk=pk)
+        product_owner = Product.objects.filter(pk=deal.product.id, owner=request.user)
+        if product_owner.exists():
+            deal.offerer_score = request.data.get('score')
+            deal.save()
+        else:
+            is_deal_offer = DealOffer.objects.select_related('offer_product').filter(
+                deal=pk).filter(offer_product__owner=request.user)
+
+            if is_deal_offer.exists():
+                deal = Deal.objects.get(pk=pk)
+                deal.owner_score = request.data.get('score')
+                deal.save()
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
         deal_serializer = DealSerializer(deal, context={'request': request})
         return Response(deal_serializer.data, status.HTTP_200_OK)

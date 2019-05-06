@@ -64,7 +64,8 @@ class Deal(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     expired_datetime = models.DateTimeField(null=True)
     is_cancel = models.BooleanField(null=True)
-    score = models.IntegerField(null=True)
+    owner_score = models.IntegerField(null=True)
+    offerer_score = models.IntegerField(null=True)
 
 class DealOffer(models.Model):
     deal = models.ForeignKey(Deal, on_delete=models.CASCADE)

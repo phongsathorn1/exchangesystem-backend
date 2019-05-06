@@ -34,6 +34,10 @@ deal_owner_accept = views.DealViewSet.as_view({
     'post': 'accept_deal'
 })
 
+deal_score = views.DealViewSet.as_view({
+    'post': 'give_score'
+})
+
 urlpatterns = [
     path('', views.api_root),
     path('product/', product_list, name='product-list'),
@@ -45,7 +49,8 @@ urlpatterns = [
     path('upload/product/', views.ProductImageUploadView.as_view(), name='upload-image'),
     path('deal/', deal_list, name="deal-list"),
     path('deal/<int:pk>/', deal_detail, name="deal-detail"),
-    path('deal/accept/<int:pk>', deal_owner_accept)
+    path('deal/accept/<int:pk>', deal_owner_accept),
+    path('deal/<int:pk>/score/', deal_score)
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
