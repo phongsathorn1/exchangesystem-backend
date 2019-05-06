@@ -10,8 +10,10 @@ urlpatterns = [
     path('auth/refresh/', refresh_jwt_token),
     path('auth/verify/', verify_jwt_token),
     path('me/', views.get_me, name='user-me'),
-    path('user/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
-    path('phone-check/', views.check_phone, name='phone-check')
+    # path('me/profile')
+    path('me/upload-picture', views.upload_profile_picture, name="upload-picuter"),
+    path('profile/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
+    path('phone-check/', views.check_phone, name='phone-check'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
