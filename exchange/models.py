@@ -71,3 +71,11 @@ class DealOffer(models.Model):
     deal = models.ForeignKey(Deal, on_delete=models.CASCADE)
     offer_product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(null=False)
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=timezone.now)
+    title = models.CharField(max_length=225)
+    message = models.TextField()
+    action = models.CharField(max_length=100)
+    is_readed = models.BooleanField(default=False)

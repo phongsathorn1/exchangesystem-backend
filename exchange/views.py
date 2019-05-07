@@ -33,9 +33,22 @@ class IsAuthenticatedOrReadOnly(BasePermission):
         return False
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+
     serializer_class = ProductSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        keyword = self.request.query_params.get('q', None)
+        if keyword is not None:
+            queryset = Product.objects.filter(name__icontains=keyword)
+        return queryset
+
+    # def list(self, request , *args, **kwargs):
+    #     queryset = Product.objects.all()
+    #     context = {'request': request}
+    #     serializer_class = ProductSerializer(queryset, context=context, many=True)
+    #     return Response(serializer_class.data, status.HTTP_200_OK)
 
     def create(self, request):
         product_serializer = self.serializer_class(data={
