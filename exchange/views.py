@@ -40,8 +40,12 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Product.objects.all()
         keyword = self.request.query_params.get('q', None)
+        category = self.request.query_params.get('category', None)
         if keyword is not None:
-            queryset = Product.objects.filter(name__icontains=keyword)
+            if category is not None:
+                queryset = Product.objects.filter(name__icontains=keyword, category__name__contains=category)
+            else:
+                queryset = Product.objects.filter(name__icontains=keyword)
         return queryset
 
     # def list(self, request , *args, **kwargs):
