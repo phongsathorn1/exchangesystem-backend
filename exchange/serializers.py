@@ -2,15 +2,16 @@ from django.http import request
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from exchange.models import Product, Category, Product_picture, Deal, DealOffer
+from exchange.models import Product, Category, Product_picture, Deal, DealOffer, Notification, Feedback, Chat
 from user.models import User
 from user.serializers import UserViewSerializer
 
-class CategoriesSerializer(serializers.ModelSerializer):
 
+class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'url', 'name')
+
 
 class ProductPictureUploadSerializer(serializers.ModelSerializer):
     user = UserViewSerializer(read_only=True)
@@ -19,14 +20,17 @@ class ProductPictureUploadSerializer(serializers.ModelSerializer):
         model = Product_picture
         fields = ('id', 'picture_path', 'user')
 
+
 class ProductPictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product_picture
         fields = ('picture_path',)
 
+
 class ProductSerializer(serializers.ModelSerializer):
     category = CategoriesSerializer(read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(many=False, queryset=Category.objects.all(), source='category', write_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(many=False, queryset=Category.objects.all(), source='category',
+                                                     write_only=True)
     owner = UserViewSerializer(read_only=True)
     product_picture = ProductPictureSerializer(many=True, read_only=True, source='product_picture_set')
 
@@ -35,6 +39,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ('id', 'url', 'name', 'detail', 'quantity', 'category',
                   'category_id', 'want_product', 'owner', 'product_picture')
 
+
 class DealOfferSerializer(serializers.ModelSerializer):
     offer_product = ProductSerializer()
 
@@ -42,13 +47,34 @@ class DealOfferSerializer(serializers.ModelSerializer):
         model = DealOffer
         fields = '__all__'
 
+
 class DealSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
     deal_offer = DealOfferSerializer(many=True, source='dealoffer_set')
 
     class Meta:
         model = Deal
-        fields = ('id', 'product', 'owner_accept', 'offerer_accept', 'created_date', 'expired_datetime', 'deal_offer')
+        fields = ('id', 'product', 'owner_accept', 'offerer_accept', 'created_date', 'expired_datetime', 'deal_offer',
+                  'offerer_score', 'owner_score')
+
 
 class DealManagerSerializer(serializers.ModelSerializer):
     Product = ProductSerializer(read_only=True)
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = '__all__'
+
+class ChatSerializer(serializers.ModelSerializer):
+    user = UserViewSerializer(read_only=True)
+    deal = DealSerializer(required=False, write_only=True)
+
+    class Meta:
+        model = Chat
+        fields = '__all__'

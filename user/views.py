@@ -22,14 +22,17 @@ def create_user(request, format=None):
             password=serializer.validated_data['password'],
             first_name=serializer.validated_data['first_name'],
             last_name=serializer.validated_data['last_name'],
-            phone=serializer.validated_data['phone']
+            phone=serializer.validated_data['phone'],
+            firebase_uid=serializer.validated_data['firebase_uid'],
+            birthday=serializer.validated_data['birthday'],
+            gender=serializer.validated_data['gender']
         )
 
-        if 'birthday' in serializer.validated_data:
-            user.birthday = serializer.validated_data['birthday']
-
-        if 'gender' in serializer.validated_data:
-            user.gender = serializer.validated_data['gender']
+        # if 'birthday' in serializer.validated_data:
+        #     user.birthday = serializer.validated_data['birthday']
+        #
+        # if 'gender' in serializer.validated_data:
+        #     user.gender = serializer.validated_data['gender']
 
         user.save()
 

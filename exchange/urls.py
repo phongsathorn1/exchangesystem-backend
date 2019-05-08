@@ -38,6 +38,23 @@ deal_score = views.DealViewSet.as_view({
     'post': 'give_score'
 })
 
+notification_list = views.NotificationViewSet.as_view({
+    'get': 'list',
+})
+
+notification_detail = views.NotificationViewSet.as_view({
+    'post': 'update'
+})
+
+feedback_list = views.FeedbackViewSet.as_view({
+    'post': 'create'
+})
+
+chat_list = views.ChatViewSet.as_view({
+    'get': 'list',
+    'post': 'create'
+})
+
 urlpatterns = [
     path('', views.api_root),
     path('product/', product_list, name='product-list'),
@@ -49,8 +66,12 @@ urlpatterns = [
     path('upload/product/', views.ProductImageUploadView.as_view(), name='upload-image'),
     path('deal/', deal_list, name="deal-list"),
     path('deal/<int:pk>/', deal_detail, name="deal-detail"),
-    path('deal/accept/<int:pk>', deal_owner_accept),
-    path('deal/<int:pk>/score/', deal_score)
+    path('deal/accept/<int:pk>/', deal_owner_accept),
+    path('deal/<int:pk>/score/', deal_score),
+    path('notification/', notification_list),
+    path('notification/<int:pk>/', notification_detail),
+    path('feedback/', feedback_list, name="feedback"),
+    path('chat/<int:pk>/', chat_list)
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

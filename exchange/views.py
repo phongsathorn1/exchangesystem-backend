@@ -10,9 +10,10 @@ from rest_framework import mixins, generics, status, viewsets, views, permission
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from exchange.models import Product, Category, Product_picture, Deal, DealOffer
+from exchange.models import Product, Category, Product_picture, Deal, DealOffer, Notification, Feedback, Chat
 from exchange.serializers import ProductSerializer, CategoriesSerializer, ProductPictureSerializer, \
-    ProductPictureUploadSerializer, DealSerializer, DealOfferSerializer
+    ProductPictureUploadSerializer, DealSerializer, DealOfferSerializer, NotificationSerializer, FeedbackSerializer, \
+    ChatSerializer
 from user.models import User
 
 
@@ -41,11 +42,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         queryset = Product.objects.all()
         keyword = self.request.query_params.get('q', None)
         category = self.request.query_params.get('category', None)
+
         if keyword is not None:
             if category is not None:
                 queryset = Product.objects.filter(name__icontains=keyword, category__name__contains=category)
             else:
                 queryset = Product.objects.filter(name__icontains=keyword)
+
+        # if self.request.user.is_authenticated:
+        #     queryset = queryset.exclude(owner=self.request.user)
+
         return queryset
 
     # def list(self, request , *args, **kwargs):
@@ -144,13 +150,19 @@ class DealViewSet(viewsets.ModelViewSet):
             product=product
         )
 
-        deal_offers = []
         for offer_product in offer_products:
             DealOffer.objects.create(
                 deal=deal,
                 offer_product=offer_product['product'],
                 quantity=offer_product['quantity']
             )
+
+        notification = Notification.objects.create(
+            user=product.owner,
+            title="ได้รับข้อเสนอ",
+            message="สินค้า %s มีผู้ยื่นข้อเสนอขอแลกเปลี่ยนสิ่งของด้วย" %(product.name),
+            action="deal:%s" %(deal.id)
+        )
 
         deal_serializer = DealSerializer(deal, context={'request': request})
         return Response(deal_serializer.data, status.HTTP_200_OK)
@@ -241,3 +253,46 @@ class ProductImageUploadView(views.APIView):
             serializer.save(user=request.user)
             return Response(serializer.data, status.HTTP_200_OK)
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificationSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user).order_by('-id')
+
+    def update(self, request, pk=None):
+        notification = Notification.objects.get(pk=pk)
+        notification.is_readed = True
+        notification.save()
+
+        notiSerializer = NotificationSerializer(notification)
+        return Response(notiSerializer.data, status.HTTP_200_OK)
+
+class FeedbackViewSet(viewsets.ModelViewSet):
+    queryset = Feedback.objects.all()
+    serializer_class = FeedbackSerializer
+    permission_classes = (AllowAny,)
+
+class ChatViewSet(viewsets.ModelViewSet):
+    serializer_class = ChatSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, pk=None):
+        deal = Deal.objects.get(pk=pk)
+        chat = Chat.objects.filter(deal=deal)
+        chatSerializer = self.serializer_class(chat, many=True, context={'request': request})
+        return Response(chatSerializer.data, status.HTTP_200_OK)
+
+    def create(self, request, pk=None):
+        deal = Deal.objects.get(pk=pk)
+        chatSerializer = self.serializer_class(data={
+            'message': request.data.get('message'),
+            # 'user': request.user.id,
+            # 'deal': deal.pk
+        }, context={'request': request})
+
+        if(chatSerializer.is_valid()):
+            chatSerializer.save(user=request.user, deal=deal)
+            return Response(chatSerializer.data, status.HTTP_200_OK)
+        return Response(chatSerializer.errors, status.HTTP_400_BAD_REQUEST)

@@ -79,3 +79,9 @@ class Notification(models.Model):
     message = models.TextField()
     action = models.CharField(max_length=100)
     is_readed = models.BooleanField(default=False)
+
+class Chat(models.Model):
+    deal = models.ForeignKey(Deal, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
