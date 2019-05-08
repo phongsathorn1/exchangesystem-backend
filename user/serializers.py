@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ('id', 'email', 'password', 'first_name', 'last_name', 'birthday', 'gender',
-                  'picture', 'phone', 'firebase_uid', 'picture')
+                  'picture', 'phone', 'firebase_uid', 'picture', 'is_staff')
 
     def validate_birthday(self, value):
         if value > datetime.datetime.now().date():

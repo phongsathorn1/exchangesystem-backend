@@ -10,7 +10,8 @@ product_list = views.ProductViewSet.as_view({
 })
 
 product_detail = views.ProductViewSet.as_view({
-    'get': 'retrieve'
+    'get': 'retrieve',
+    'delete': 'destroy'
 })
 
 product_avaliable_by_user = views.ProductViewSet.as_view({
