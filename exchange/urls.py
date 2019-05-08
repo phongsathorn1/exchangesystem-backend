@@ -48,6 +48,7 @@ notification_detail = views.NotificationViewSet.as_view({
 })
 
 feedback_list = views.FeedbackViewSet.as_view({
+    'get': 'list',
     'post': 'create'
 })
 
