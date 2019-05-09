@@ -8,12 +8,12 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(Product, ProductAdmin)
 
 class CategoryAdmin(admin.ModelAdmin):
-    fields = ('__all__',)
+    fields = ('name', 'detail')
 
 admin.site.register(Category, CategoryAdmin)
 
 class FeedbackAdmin(admin.ModelAdmin):
-    fields = ('__all__',)
+    fields = ('created_date', 'title', 'detail')
     list_filter = ['created_date']
     search_fields = ['title']
 admin.site.register(Feedback, FeedbackAdmin)
@@ -30,13 +30,13 @@ class DealOffererAdmin(admin.ModelAdmin):
 admin.site.register(DealOffer, DealOffererAdmin)
 
 class NotificationAdmin(admin.ModelAdmin):
-    fields = ('__all__',)
+    fields = ('deal', 'offer_product', 'quantity')
     list_filter = ['created_date', 'is_readed']
     search_fields = ['user']
 admin.site.register(Notification, NotificationAdmin)
 
 class ChatAdmin(admin.ModelAdmin):
-    fields = ('__all__',)
+    fields = ('created_date', 'deal', 'user', 'message')
     search_fields = ['deal']
     list_filter = ['created_date']
 admin.site.register(Chat, ChatAdmin)
