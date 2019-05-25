@@ -37,7 +37,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('id', 'url', 'name', 'detail', 'quantity', 'category',
-                  'category_id', 'want_product', 'owner', 'product_picture')
+                  'category_id', 'want_product', 'owner', 'product_picture', 'is_avaliable')
 
 
 class DealOfferSerializer(serializers.ModelSerializer):
