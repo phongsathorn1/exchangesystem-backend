@@ -28,7 +28,8 @@ deal_list = views.DealViewSet.as_view({
 })
 
 deal_detail = views.DealViewSet.as_view({
-    'get': 'retrieve'
+    'get': 'retrieve',
+    'delete': 'delete'
 })
 
 deal_owner_accept = views.DealViewSet.as_view({

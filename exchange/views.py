@@ -39,7 +39,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        queryset = Product.objects.all()
+        queryset = Product.objects.filter(is_avaliable=True)
         keyword = self.request.query_params.get('q', None)
         category = self.request.query_params.get('category', None)
 
@@ -54,11 +54,11 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    # def list(self, request , *args, **kwargs):
-    #     queryset = Product.objects.all()
-    #     context = {'request': request}
-    #     serializer_class = ProductSerializer(queryset, context=context, many=True)
-    #     return Response(serializer_class.data, status.HTTP_200_OK)
+    def retrieve(self, request , pk=None):
+        retrive_queryset = Product.objects.get(pk=pk)
+        context = {'request': request}
+        serializer_class = ProductSerializer(retrive_queryset, context=context)
+        return Response(serializer_class.data, status.HTTP_200_OK)
 
     def create(self, request):
         product_serializer = self.serializer_class(data={
@@ -134,6 +134,19 @@ class DealViewSet(viewsets.ModelViewSet):
 
         return Response(context, status.HTTP_200_OK)
 
+    def delete(self, request, pk=None):
+        notification = Notification.objects.get(action="deal:%s" %pk)
+        deal = Deal.objects.get(pk=pk)
+
+        notification.delete()
+        deal.delete()
+
+        data = {
+            'success': True
+        }
+
+        return Response(data, status.HTTP_200_OK)
+
     def create(self, request):
         product = Product.objects.get(pk=request.data.get('product_id'))
         offer_products = []
@@ -204,6 +217,16 @@ class DealViewSet(viewsets.ModelViewSet):
                 deal.save()
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if deal.owner_score is not None and deal.offerer_score is not None:
+            deal.product.is_avaliable = False
+            deal.product.quantity = 0
+            for offer in deal.dealoffer_set.all():
+                if offer.offer_product.quantity == offer.quantity:
+                    offer.offer_product.is_avaliable = False
+                offer.offer_product.quantity -= offer.quantity
+                offer.offer_product.save()
+            deal.product.save()
 
         deal_serializer = DealSerializer(deal, context={'request': request})
         return Response(deal_serializer.data, status.HTTP_200_OK)

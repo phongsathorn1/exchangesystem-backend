@@ -19,6 +19,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, null=False, blank=False)
     want_product = models.CharField(max_length=125)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_avaliable = models.BooleanField(null=False, default=1)
 
     class Meta:
         ordering = ('created_date',)
