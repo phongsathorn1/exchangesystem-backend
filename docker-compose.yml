@@ -1,0 +1,25 @@
+version: "3"
+services:
+  db:
+    image: mariadb:10.4.8-bionic
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "exchangesystem"
+      MYSQL_USER: "alice"
+      MYSQL_PASSWORD: "password"
+      MYSQL_ROOT_PASSWORD: "password"
+
+  web_backend:
+    build: .
+    command: dockerize -wait tcp://db:3306 -timeout 30s /bin/bash start.sh
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_NAME: "exchangesystem"
+      DATABASE_USER: "root"
+      DATABASE_PASSWORD: "password"
+      DATABASE_HOST: "db"
+    depends_on:
+      - db
