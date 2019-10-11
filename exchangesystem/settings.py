@@ -84,10 +84,12 @@ WSGI_APPLICATION = 'exchangesystem.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': os.path.join(BASE_DIR, 'mysql.cnf'),
-        },
-    }
+        'NAME': os.environ.get('DATABASE_NAME', None),
+        'USER': os.environ.get('DATABASE_USER', None),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
+        'HOST': os.environ.get('DATABASE_HOST', None),
+        'PORT': os.environ.get('DATABASE_PORT', '3306'),
+    },
 }
 
 
