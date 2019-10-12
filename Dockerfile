@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 
 COPY requirements.txt ./
 RUN apt-get update \ 
+&& apt-get install dos2unix -y \
 && pip install --upgrade pip \
 && apt-get install libmariadb-dev \ 
 && pip install --no-cache-dir -r requirements.txt
@@ -19,4 +20,5 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-CMD ["/bin/bash", "start.sh"]
+RUN dos2unix start.sh
+CMD ["/bin/bash", "dos2unix", "start.sh"]
