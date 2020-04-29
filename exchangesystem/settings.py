@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'quickstart',
     'exchange.apps.ExchangeConfig',
     'user.apps.UserConfig',
-    'corsheaders'
+    'corsheaders',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -131,7 +132,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 # STATIC_ROOT =  os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
+USE_S3 = True
+
+if USE_S3:
+    AWS_ACCESS_KEY_ID = 'AKIAV3AQSYDD2VGAIVYN'
+    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_STORAGE_BUCKET_NAME = 'exchange.com-media'
+    AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+    AWS_LOCATION = 'static'
+
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'media'),
+    ]
+    STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+    # STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+    DEFAULT_FILE_STORAGE = 'exchangesystem.storage_backend.MediaStorage'
+else:
+    STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"), # your static/ files folder
 ]
@@ -194,3 +216,5 @@ JWT_AUTH = {
 
 # APPEND_SLASH=False
 ALLOWED_HOSTS = ['*']
+
+

@@ -3,6 +3,8 @@ env
 db.sqlite3
 .idea
 mysql.cnf
+.vscode
+app.env
 
 # ignore pycache
 *.pyc
