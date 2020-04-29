@@ -6,4 +6,4 @@ services:
     build: .
     command: dockerize -wait tcp://${DATABASE_HOST}:${DATABASE_PORT} -timeout 30s /bin/bash start.sh
     ports:
-      - "8000:8000"
+      - "80:8000"
