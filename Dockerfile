@@ -6,7 +6,7 @@ COPY requirements.txt ./
 RUN apt-get update \ 
 && apt-get install dos2unix -y \
 && pip install --upgrade pip \
-&& apt-get install libmariadb-dev \ 
+&& apt-get install libmariadb-dev -y \ 
 && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
