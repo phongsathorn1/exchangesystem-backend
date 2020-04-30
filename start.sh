@@ -2,7 +2,7 @@
 if [[ ! -d "./assets" ]]
 then
     echo "Not found ./static directory. creating..."
-    mkdir static
+    mkdir assets
 fi
 
 python3 manage.py collectstatic --no-input
