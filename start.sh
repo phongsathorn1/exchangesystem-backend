@@ -1,4 +1,9 @@
 #!/bin/bash
+if [[ ! -d "./static" ]]
+then
+    echo "Not found ./static directory. creating..."
+    mkdir static
+fi
 
 python3 manage.py collectstatic --no-input
 python3 manage.py migrate
