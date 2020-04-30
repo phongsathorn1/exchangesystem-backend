@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ ! -d "./static" ]]
+if [[ ! -d "./assets" ]]
 then
     echo "Not found ./static directory. creating..."
     mkdir static

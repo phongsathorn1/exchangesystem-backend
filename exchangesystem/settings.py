@@ -152,8 +152,8 @@ if USE_S3:
 
     DEFAULT_FILE_STORAGE = 'exchangesystem.storage_backend.MediaStorage'
 
-STATIC_URL = '/static/'
-STATIC_ROOT = './static/'
+STATIC_URL = '/assets/'
+STATIC_ROOT = './assets/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"), # your static/ files folder
 ]
