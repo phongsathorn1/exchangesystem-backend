@@ -1,8 +1,14 @@
 #!/bin/bash
 if [[ ! -d "./assets" ]]
 then
-    echo "Not found ./static directory. creating..."
+    echo "Not found ./assets directory. creating..."
     mkdir assets
+fi
+
+if [[ ! -d "./static" ]]
+then
+    echo "Not found ./static directory. creating..."
+    mkdir static
 fi
 
 python3 manage.py collectstatic --no-input
