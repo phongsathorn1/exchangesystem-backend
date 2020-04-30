@@ -1,6 +1,12 @@
 FROM python:3.7.4
 
+# Set Environment Variable
+ENV PYTHONUNBUFFERED 1
+ENV C_FORCE_ROOT true
+
 WORKDIR /usr/src/app
+
+RUN pip install --upgrade pip
 
 COPY requirements.txt ./
 RUN apt-get update \ 
